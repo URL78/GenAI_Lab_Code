@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Voice to Requirements</title>
+</head>
+<body>
+
+<h2>Voice to Requirements Generator</h2>
+
+<button id="record">🎤 Record</button>
+<button id="stop" disabled>⏹ Stop</button>
+
+<h3>Transcript</h3>
+<p id="transcript"></p>
+
+<h3>Requirements</h3>
+<pre id="requirements"></pre>
+
+<script>
+let mediaRecorder;
+let audioChunks = [];
+
+const recordBtn = document.getElementById("record");
+const stopBtn = document.getElementById("stop");
+
+recordBtn.onclick = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+  mediaRecorder = new MediaRecorder(stream);
+  audioChunks = [];
+
+  mediaRecorder.ondataavailable = event => {
+    audioChunks.push(event.data);
+  };
+
+  mediaRecorder.onstop = async () => {
+    const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+
+    const formData = new FormData();
+    formData.append("audio", audioBlob, "recording.webm");
+
+    try {
+      const response = await fetch("http://127.0.0.1:5000/process", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+      console.log("Backend response:", data);
+
+      document.getElementById("transcript").innerText = data.transcript;
+      document.getElementById("requirements").innerText = data.requirements;
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to connect to backend");
+    }
+  };
+
+  mediaRecorder.start();
+  recordBtn.disabled = true;
+  stopBtn.disabled = false;
+};
+
+stopBtn.onclick = () => {
+  mediaRecorder.stop();
+  recordBtn.disabled = false;
+  stopBtn.disabled = true;
+};
+</script>
+
+
+</body>
+</html>
