@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "AI Meet Requirements Assistant",
+  "version": "1.0",
+  "description": "Generate clarification questions and FR/NFR from Google Meet captions using local LLaMA 3.2",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://meet.google.com/*",
+    "http://localhost:11434/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [ 
+    {
+      "matches": ["https://meet.google.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Meet Requirements Assistant</title>
+    <style>
+        body {
+            width: 400px;
+            height: 620px;
+            margin: 0;
+            padding: 15px;
+            font-family: Arial, sans-serif;
+            background: #111827;
+            color: white;
+        }
+
+        h2 {
+            text-align: center;
+            color: #22d3ee;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            margin-bottom: 10px;
+            background: #1f2937;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            resize: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 6px;
+            background: #22d3ee;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #06b6d4;
+        }
+
+        #answersContainer textarea {
+            height: 50px;
+        }
+
+        #finalOutput {
+            height: 120px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>AI Requirements Assistant</h2>
+
+    <h4>Live Transcript</h4>
+    <textarea id="transcript" readonly></textarea>
+
+    <button id="generateQuestions">Generate Clarification Questions</button>
+
+    <h4>Clarification Questions</h4>
+    <textarea id="questions" readonly></textarea>
+
+    <div id="answersContainer"></div>
+
+    <button id="generateFRNFR">Generate FR & NFR</button>
+
+    <h4>Final Requirements</h4>
+    <textarea id="finalOutput" readonly></textarea>
+
+    <script src="popup.js"></script>
+
+</body>
+</html>

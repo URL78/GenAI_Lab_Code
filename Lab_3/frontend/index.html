@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Iterative Requirement Refinement</title>
+  <style>
+    body { font-family: Arial; margin: 40px; }
+    button { padding: 10px; margin: 5px; }
+    textarea { width: 100%; height: 100px; }
+    .box { border: 1px solid #ccc; padding: 15px; margin-top: 20px; }
+    .stability { font-weight: bold; color: green; }
+  </style>
+</head>
+<body>
+
+<h2>🎤 Voice-Based Requirement Refinement</h2>
+
+<button id="record">Record</button>
+<button id="stop" disabled>Stop</button>
+
+<div class="box">
+<h3>Transcript</h3>
+<p id="transcript"></p>
+</div>
+
+<div class="box">
+<h3>Generated Requirements</h3>
+<pre id="requirements"></pre>
+</div>
+
+<div class="box">
+<h3>Clarification Answers</h3>
+<textarea id="answers"></textarea><br>
+<button id="refine">Submit Answers</button>
+</div>
+
+<div class="box">
+<h3>Stability</h3>
+<p class="stability" id="stability"></p>
+<p id="iteration"></p>
+</div>
+
+<script>
+let mediaRecorder;
+let audioChunks = [];
+
+const recordBtn = document.getElementById("record");
+const stopBtn = document.getElementById("stop");
+
+recordBtn.onclick = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  mediaRecorder = new MediaRecorder(stream);
+  audioChunks = [];
+
+  mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+  mediaRecorder.onstop = async () => {
+    const blob = new Blob(audioChunks, { type: "audio/webm" });
+    const formData = new FormData();
+    formData.append("audio", blob);
+
+    const response = await fetch("http://127.0.0.1:5000/process", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    document.getElementById("transcript").innerText = data.transcript;
+    document.getElementById("requirements").innerText = data.requirements;
+    document.getElementById("stability").innerText = "Stability: " + data.stability + "%";
+    document.getElementById("iteration").innerText = "Iteration: " + data.iteration;
+  };
+
+  mediaRecorder.start();
+  recordBtn.disabled = true;
+  stopBtn.disabled = false;
+};
+
+stopBtn.onclick = () => {
+  mediaRecorder.stop();
+  recordBtn.disabled = false;
+  stopBtn.disabled = true;
+};
+
+document.getElementById("refine").onclick = async () => {
+  const answers = document.getElementById("answers").value;
+
+  const response = await fetch("http://127.0.0.1:5000/refine", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ answers })
+  });
+
+  const data = await response.json();
+
+  document.getElementById("requirements").innerText = data.requirements;
+  document.getElementById("stability").innerText = "Stability: " + data.stability + "%";
+  document.getElementById("iteration").innerText = "Iteration: " + data.iteration;
+};
+</script>
+
+</body>
+</html>
